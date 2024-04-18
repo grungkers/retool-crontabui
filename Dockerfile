@@ -1,7 +1,17 @@
 # docker run -d -p 8000:8000 alseambusher/crontab-ui
-FROM alpine:3.15.3
+FROM tryretool/backend
+USER root
 
-ENV   CRON_PATH /etc/crontabs
+RUN apt-get update && apt-get install -y \
+      cron \
+      wget \
+      curl \
+      nodejs \
+      npm \
+      supervisor \
+      tzdata \
+&& rm -rf /var/lib/apt/lists/*
+ENV   CRON_PATH /var/spool/cron/crontabs
 
 RUN   mkdir /crontab-ui; touch $CRON_PATH/root; chmod +x $CRON_PATH/root
 
@@ -9,14 +19,6 @@ WORKDIR /crontab-ui
 
 LABEL maintainer "@alseambusher"
 LABEL description "Crontab-UI docker"
-
-RUN   apk --no-cache add \
-      wget \
-      curl \
-      nodejs \
-      npm \
-      supervisor \
-      tzdata
 
 COPY supervisord.conf /etc/supervisord.conf
 COPY . /crontab-ui
