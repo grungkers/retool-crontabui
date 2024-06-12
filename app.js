@@ -93,7 +93,6 @@ app.get(routes.root, function(req, res) {
 		});
 	});
 });
-
 /*
 Handle to save crontab to database
 If it is a new job @param _id is set to -1
@@ -259,7 +258,14 @@ process.on('SIGTERM', function() {
 
 var server = startHttpsServer ?
   https.createServer(credentials, app) : http.createServer(app);
-
+const { Server } = require("socket.io");
+const io = new Server(server);
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('chat message', (msg) => {
+      console.log('message: ' + msg);
+    });
+});
 server.listen(app.get('port'), app.get('host'), function() {
   console.log("Node version:", process.versions.node);
   fs.access(crontab.db_folder, fs.W_OK, function(err) {
